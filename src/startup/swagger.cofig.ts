@@ -22,5 +22,5 @@ export function initSwaggerConfig(app) {
     .build();
   const document = SwaggerModule.createDocument(app, config);
   if (!environmentService.isProduction)
-    SwaggerModule.setup('api', app, document);
+    SwaggerModule.setup('api-docs', app, document);
 }
