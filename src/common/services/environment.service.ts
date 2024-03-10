@@ -21,15 +21,11 @@ export class EnvironmentService {
     };
   }
 
-  //   get dataBaseConfig() {
-  //     return {
-  //       dataBaseUser: this.configService.get<string>('DATABASE_USER'),
-  //       dataBasePassword: this.configService.get<string>('DATABASE_PASSWORD'),
-  //       dataBaseName: this.configService.get<string>('DATABASE_NAME'),
-  //       dataBasePort: this.configService.get<string>('DATABASE_PORT'),
-  //       dataBaseURL: this.configService.get<string>('DATABASE_URL'),
-  //     };
-  //   }
+  get dataBaseConfig() {
+    return {
+      dataBaseURL: this.configService.get<string>('DATABASE_URL'),
+    };
+  }
 
   get jasonWebTokenConfig() {
     return {
