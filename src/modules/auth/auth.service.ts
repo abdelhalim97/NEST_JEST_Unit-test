@@ -11,11 +11,13 @@ import { InjectModel } from '@nestjs/mongoose';
 import { LoginDto } from 'src/modules/auth/dto/login.dto';
 import { SuccessResponse } from 'src/common/responses/success.response';
 import { ForgetPasswordDto } from 'src/modules/auth/dto/forget-password.dto';
+import { ForgotPasswordsService } from 'src/modules/forgot-passwords/forgot-passwords.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly usersService: UsersService,
+    private readonly forgotPasswordsService: ForgotPasswordsService,
     private readonly environmentService: EnvironmentService,
     private jwtService: JwtService,
     @InjectModel(User.name) private userModel: Model<User>,
@@ -61,15 +63,18 @@ export class AuthService {
 
   async forgetPassword(forgetPasswordDto: ForgetPasswordDto): Promise<SuccessResponse> {
     const { email } = forgetPasswordDto;
+    const user = await this.userModel.findOne({ email }).exec(); //We should not indecate to the user that email exists or not for security
 
-    await this.usersService.isEmailExists(email);
-    this.transporter.sendMail({
-      from: this.smtpEmail,
-      to: email,
-      subject: 'from 9at3a',
-      text: 'Hello world?',
-      html: '<b>Hello world?</b>',
-    });
+    if (user) {
+      const createdForgetPassword = await this.forgotPasswordsService.createForgetPassword(user._id);
+
+      this.transporter.sendMail({
+        from: this.smtpEmail,
+        to: email,
+        subject: 'Reset password',
+        text: `Hello world? ${createdForgetPassword.ulid}`,
+      });
+    }
 
     return { success: true };
   }

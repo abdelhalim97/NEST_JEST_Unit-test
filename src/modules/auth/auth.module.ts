@@ -7,6 +7,7 @@ import { User, UserSchema } from 'src/modules/users/user.schema';
 import { JwtModule } from '@nestjs/jwt';
 import { CommonModule } from 'src/common/common.module';
 import { EnvironmentService } from 'src/common/services/environment.service';
+import { ForgotPasswordsModule } from 'src/modules/forgot-passwords/forgot-passwords.module';
 
 @Module({
   providers: [AuthService],
@@ -21,6 +22,7 @@ import { EnvironmentService } from 'src/common/services/environment.service';
       },
     }),
     UsersModule,
+    ForgotPasswordsModule,
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
   ],
 })
