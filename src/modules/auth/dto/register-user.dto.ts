@@ -20,7 +20,7 @@ export class RegisterUserDto {
   @ApiProperty({ example: '123456' })
   password: string;
 
-  @Match('password')
+  @Match('password', { message: 'Password and confirm password are different!' })
   @IsString()
   @ApiProperty({ example: '123456' })
   confirmPassword: string;
