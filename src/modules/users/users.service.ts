@@ -21,20 +21,20 @@ export class UsersService {
 
   async isEmailExists(email: string): Promise<boolean> {
     const userByEmail = await this.userModel.findOne({ email });
-    if (!userByEmail) throw new HttpException('Email not found', HttpStatus.NOT_FOUND);
+    if (!userByEmail) throw new HttpException('Email not found!', HttpStatus.NOT_FOUND);
     return true;
   }
 
   async isEmailNotExists(email: string): Promise<boolean> {
     const userByEmail = await this.userModel.findOne({ email });
-    if (userByEmail) throw new HttpException('Email exists', HttpStatus.CONFLICT);
+    if (userByEmail) throw new HttpException('Email exists!', HttpStatus.CONFLICT);
     return true;
   }
 
   async isUserByIdExists(id: string): Promise<boolean> {
     const userByEmail = await this.userModel.findOne({ _id: id });
 
-    if (!userByEmail) throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    if (!userByEmail) throw new HttpException('User not found!', HttpStatus.NOT_FOUND);
     return true;
   }
 }

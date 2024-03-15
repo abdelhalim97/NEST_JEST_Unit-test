@@ -4,7 +4,7 @@ import { HydratedDocument, Types } from 'mongoose';
 
 export type UserDocument = HydratedDocument<User>;
 
-@Schema({ timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } })
+@Schema({ timestamps: true })
 export class User {
   @ApiProperty()
   _id: Types.ObjectId;
@@ -34,6 +34,12 @@ export class User {
 
   @Prop({ default: false })
   isValid: boolean;
+
+  @ApiProperty()
+  createdAt: Date;
+
+  @ApiProperty()
+  updatedAt: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
