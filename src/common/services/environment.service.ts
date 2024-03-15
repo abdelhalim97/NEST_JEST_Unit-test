@@ -18,6 +18,12 @@ export class EnvironmentService {
     };
   }
 
+  get frontInformation() {
+    return {
+      frontUrl: this.configService.get<string>('FRONT_URL'),
+    };
+  }
+
   get dataBaseConfig() {
     return {
       dataBaseURL: this.configService.get<string>('DATABASE_URL'),
