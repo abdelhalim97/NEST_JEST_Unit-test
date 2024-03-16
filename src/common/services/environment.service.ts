@@ -33,7 +33,7 @@ export class EnvironmentService {
   get jasonWebTokenConfig() {
     return {
       JWTSecretKey: this.configService.get<string>('JWT_SECRET_KEY'),
-      saltRounds: this.configService.get<number>('SALT_ROUNDS'),
+      saltRounds: Number(this.configService.get<number>('SALT_ROUNDS')),
     };
   }
 
