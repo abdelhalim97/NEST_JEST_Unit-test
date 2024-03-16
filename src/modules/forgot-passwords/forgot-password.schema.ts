@@ -1,23 +1,21 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import mongoose, { HydratedDocument } from 'mongoose';
-import { User } from 'src/modules/users/user.schema';
+import mongoose, { HydratedDocument, Types } from 'mongoose';
 
 export type ForgotPasswordDocument = HydratedDocument<ForgotPassword>;
 
-@Schema({ timestamps: { createdAt: 'created_at' } })
+@Schema({ timestamps: { createdAt: true } })
 export class ForgotPassword {
   @Prop({ isRequired: true, index: true })
   @ApiProperty()
   ulid: string;
 
-  @Prop({ default: false })
-  @ApiProperty()
-  isUsed: boolean;
-
   @Prop({ isRequired: true, type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   @ApiProperty()
-  userId: User;
+  userId: Types.ObjectId;
+
+  @ApiProperty()
+  createdAt?: Date;
 }
 
-export const ForgotPasswordSchema = SchemaFactory.createForClass(ForgotPassword);
+export const ForgotPasswordSchema = SchemaFactory.createForClass(ForgotPassword).index({ createdAt: 1 });

@@ -10,8 +10,10 @@ import { User } from 'src/modules/users/user.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { LoginDto } from 'src/modules/auth/dto/login.dto';
 import { SuccessResponse } from 'src/common/responses/success.response';
-import { ForgetPasswordDto } from 'src/modules/auth/dto/forget-password.dto';
 import { ForgotPasswordsService } from 'src/modules/forgot-passwords/forgot-passwords.service';
+import { UpdatePasswordDto } from 'src/modules/auth/dto/update-password.dto';
+import { ForgotPasswordDto } from 'src/modules/auth/dto/forgot-password.dto';
+import { CommonService } from 'src/common/services/common.service';
 
 @Injectable()
 export class AuthService {
@@ -19,6 +21,7 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly forgotPasswordsService: ForgotPasswordsService,
     private readonly environmentService: EnvironmentService,
+    private commonService: CommonService,
     private jwtService: JwtService,
     @InjectModel(User.name) private userModel: Model<User>,
   ) {}
@@ -26,6 +29,8 @@ export class AuthService {
   private saltOrRounds = this.environmentService.jasonWebTokenConfig.saltRounds;
   private JwtSecret = this.environmentService.jasonWebTokenConfig.JWTSecretKey;
   private smtpEmail = this.environmentService.smtp.smtpUser;
+  private frontUrl = this.environmentService.frontInformation.frontUrl;
+
   private transporter = nodemailer.createTransport({
     host: this.environmentService.smtp.smtpHost,
     port: this.environmentService.smtp.smtpPort,
@@ -38,7 +43,7 @@ export class AuthService {
 
   async register(registerUserDto: RegisterUserDto): Promise<User> {
     const { email, password, name } = registerUserDto;
-    const hashedPassword = await bcrypt.hash(password, Number(this.saltOrRounds));
+    const hashedPassword = await this.commonService.hash(password);
 
     await this.usersService.isEmailNotExists(email);
 
@@ -55,27 +60,36 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.compare(password, fetcheduser.password);
 
-    if (!hashedPassword) throw new HttpException('Wrong credentials', HttpStatus.UNAUTHORIZED);
+    if (!hashedPassword) throw new HttpException('Wrong credentials!', HttpStatus.UNAUTHORIZED);
 
     const jwt = await this.generateBearerToken(fetcheduser._id);
     return { jwt };
   }
 
-  async forgetPassword(forgetPasswordDto: ForgetPasswordDto): Promise<SuccessResponse> {
-    const { email } = forgetPasswordDto;
+  async forgotPassword(forgotPasswordDto: ForgotPasswordDto): Promise<SuccessResponse> {
+    const { email } = forgotPasswordDto;
     const user = await this.userModel.findOne({ email }).exec(); //We should not indecate to the user that email exists or not for security
 
     if (user) {
-      const createdForgetPassword = await this.forgotPasswordsService.createForgetPassword(user._id);
+      const createdForgotPassword = await this.forgotPasswordsService.createForgotPassword(user._id);
 
       this.transporter.sendMail({
         from: this.smtpEmail,
         to: email,
         subject: 'Reset password',
-        text: `Hello world? ${createdForgetPassword.ulid}`,
+        text: `You can use this link to reset your password ${this.frontUrl}[forgot password front redirection]/?key=${createdForgotPassword.ulid}.\n
+        This link expires after 1 hour and cannot be reused.`,
       });
     }
 
+    return { success: true };
+  }
+
+  async resetPassword(updatePasswordDto: UpdatePasswordDto, key: string): Promise<SuccessResponse> {
+    const forgotPassword = await this.forgotPasswordsService.findForgotPasswordByUlid(key);
+
+    const isPasswordUpdated = !!(await this.usersService.updatePassword(updatePasswordDto, forgotPassword.userId));
+    if (isPasswordUpdated) await this.forgotPasswordsService.deleteForgotPasswordByUlid(forgotPassword.ulid);
     return { success: true };
   }
 

@@ -1,13 +1,30 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
+import { SuccessResponse } from 'src/common/responses/success.response';
+import { CommonService } from 'src/common/services/common.service';
+import { UpdatePasswordDto } from 'src/modules/auth/dto/update-password.dto';
 import { User } from 'src/modules/users/user.schema';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
+  constructor(
+    @InjectModel(User.name) private userModel: Model<User>,
+    private commonService: CommonService,
+  ) {}
 
-  async fetchUserById(id: string): Promise<User> {
+  async updatePassword(updatePasswordDto: UpdatePasswordDto, id: Types.ObjectId): Promise<SuccessResponse> {
+    const { password } = updatePasswordDto;
+    await this.isUserByIdExists(id);
+
+    const hashedPassword = await this.commonService.hash(password);
+
+    await this.userModel.updateOne({ _id: id }, { password: hashedPassword });
+
+    return { success: true };
+  }
+
+  async fetchUserById(id: Types.ObjectId): Promise<User> {
     await this.isUserByIdExists(id);
 
     return await this.userModel.findOne({ _id: id });
@@ -31,7 +48,7 @@ export class UsersService {
     return true;
   }
 
-  async isUserByIdExists(id: string): Promise<boolean> {
+  async isUserByIdExists(id: Types.ObjectId): Promise<boolean> {
     const userByEmail = await this.userModel.findOne({ _id: id });
 
     if (!userByEmail) throw new HttpException('User not found!', HttpStatus.NOT_FOUND);
