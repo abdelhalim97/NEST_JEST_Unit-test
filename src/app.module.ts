@@ -6,6 +6,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { EnvironmentService } from 'src/common/services/environment.service';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
+import { ForgotPasswordsModule } from './modules/forgot-passwords/forgot-passwords.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { UsersModule } from './modules/users/users.module';
     }),
     AuthModule,
     UsersModule,
+    ForgotPasswordsModule,
   ],
   controllers: [],
   providers: [AppService],

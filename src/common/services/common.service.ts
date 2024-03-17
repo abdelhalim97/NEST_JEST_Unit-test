@@ -1,4 +1,38 @@
 import { Injectable } from '@nestjs/common';
+import { EnvironmentService } from 'src/common/services/environment.service';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
-export class CommonService {}
+export class CommonService {
+  constructor(private readonly environmentService: EnvironmentService) {}
+
+  private saltOrRounds = this.environmentService.jasonWebTokenConfig.saltRounds;
+
+  async hash(hashedVariable: string): Promise<string> {
+    return await bcrypt.hash(hashedVariable, this.saltOrRounds);
+  }
+
+  adjustDate(): Date {
+    const givenDate = new Date();
+
+    givenDate.setTime(givenDate.getTime() - new Date().getTimezoneOffset() * 60 * 1000);
+    return givenDate;
+  }
+
+  remainingTime(date: Date): number {
+    const currentTime = new Date();
+    const targetTime = new Date(date);
+
+    if (targetTime > currentTime) {
+      const timeDifference = Number(targetTime) - Number(currentTime);
+      return timeDifference;
+    }
+
+    const timeDifference = Number(currentTime) - Number(targetTime);
+    return timeDifference;
+  }
+
+  millisecondsToHours(milliseconds: number): number {
+    return milliseconds / (1000 * 60 * 60);
+  }
+}
