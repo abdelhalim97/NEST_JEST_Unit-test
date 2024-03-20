@@ -25,25 +25,31 @@ export class UsersService {
   }
 
   async fetchUserById(id: Types.ObjectId): Promise<User> {
-    await this.isUserByIdExists(id);
+    const user = await this.userModel.findOne({ _id: id });
 
-    return await this.userModel.findOne({ _id: id });
+    if (!user) throw new HttpException('Email not found!', HttpStatus.NOT_FOUND);
+
+    return user;
   }
 
   async fetchUserByEmail(email: string): Promise<User> {
-    await this.isEmailExists(email);
+    const user = await this.userModel.findOne({ email }).exec();
 
-    return await this.userModel.findOne({ email }).exec();
+    if (!user) throw new HttpException('Email not found!', HttpStatus.NOT_FOUND);
+
+    return user;
   }
 
   async isEmailExists(email: string): Promise<boolean> {
     const userByEmail = await this.userModel.findOne({ email });
+
     if (!userByEmail) throw new HttpException('Email not found!', HttpStatus.NOT_FOUND);
     return true;
   }
 
   async isEmailNotExists(email: string): Promise<boolean> {
     const userByEmail = await this.userModel.findOne({ email });
+
     if (userByEmail) throw new HttpException('Email exists!', HttpStatus.CONFLICT);
     return true;
   }
