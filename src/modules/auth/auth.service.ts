@@ -26,7 +26,6 @@ export class AuthService {
     @InjectModel(User.name) private userModel: Model<User>,
   ) {}
 
-  private saltOrRounds = this.environmentService.jasonWebTokenConfig.saltRounds;
   private JwtSecret = this.environmentService.jasonWebTokenConfig.JWTSecretKey;
   private smtpEmail = this.environmentService.smtp.smtpUser;
   private frontUrl = this.environmentService.frontInformation.frontUrl;
