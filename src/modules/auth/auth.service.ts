@@ -87,8 +87,9 @@ export class AuthService {
   async resetPassword(updatePasswordDto: UpdatePasswordDto, key: string): Promise<SuccessResponse> {
     const forgotPassword = await this.forgotPasswordsService.findForgotPasswordByUlid(key);
 
-    const isPasswordUpdated = !!(await this.usersService.updatePassword(updatePasswordDto, forgotPassword.userId));
-    if (isPasswordUpdated) await this.forgotPasswordsService.deleteForgotPasswordByUlid(forgotPassword.ulid);
+    await this.usersService.updatePassword(updatePasswordDto, forgotPassword.userId);
+
+    await this.forgotPasswordsService.deleteForgotPasswordByUlid(forgotPassword.ulid);
     return { success: true };
   }
 
