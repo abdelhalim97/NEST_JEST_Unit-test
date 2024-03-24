@@ -1,5 +1,16 @@
 {
   "compilerOptions": {
+    "strict": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true, //will check functions to ensure they return a value
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": false, //strictNullChecks forces class properties to be declared in the constructor, this rule fix it
+    //on top of this custom added config
+
     "module": "commonjs",
     "declaration": true,
     "removeComments": true,
@@ -12,10 +23,12 @@
     "baseUrl": "./",
     "incremental": true,
     "skipLibCheck": true,
-    "strictNullChecks": false,
     "noImplicitAny": false,
     "strictBindCallApply": false,
-    "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false
+    "forceConsistentCasingInFileNames": false
+
+    //beneath this custom removed configs
+    // "strictNullChecks": false,
+    // "noFallthroughCasesInSwitch": false
   }
 }
