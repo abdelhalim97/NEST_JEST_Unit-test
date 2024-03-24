@@ -7,7 +7,7 @@ export class EnvironmentService {
   constructor(private readonly configService: ConfigService) {}
 
   get isProduction(): boolean {
-    return this.configService.get<string>('SERVER_ENV') === ServerEnvironmentEnum.PRODUCTION;
+    return this.configService.get<ServerEnvironmentEnum>('SERVER_ENV') === ServerEnvironmentEnum.PRODUCTION;
   }
 
   get serverConfig() {

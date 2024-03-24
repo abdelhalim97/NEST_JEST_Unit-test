@@ -26,7 +26,6 @@ export class AuthService {
     @InjectModel(User.name) private userModel: Model<User>,
   ) {}
 
-  private saltOrRounds = this.environmentService.jasonWebTokenConfig.saltRounds;
   private JwtSecret = this.environmentService.jasonWebTokenConfig.JWTSecretKey;
   private smtpEmail = this.environmentService.smtp.smtpUser;
   private frontUrl = this.environmentService.frontInformation.frontUrl;
@@ -88,8 +87,9 @@ export class AuthService {
   async resetPassword(updatePasswordDto: UpdatePasswordDto, key: string): Promise<SuccessResponse> {
     const forgotPassword = await this.forgotPasswordsService.findForgotPasswordByUlid(key);
 
-    const isPasswordUpdated = !!(await this.usersService.updatePassword(updatePasswordDto, forgotPassword.userId));
-    if (isPasswordUpdated) await this.forgotPasswordsService.deleteForgotPasswordByUlid(forgotPassword.ulid);
+    await this.usersService.updatePassword(updatePasswordDto, forgotPassword.userId);
+
+    await this.forgotPasswordsService.deleteForgotPasswordByUlid(forgotPassword.ulid);
     return { success: true };
   }
 

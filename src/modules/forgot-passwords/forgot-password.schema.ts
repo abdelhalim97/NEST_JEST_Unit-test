@@ -15,7 +15,7 @@ export class ForgotPassword {
   userId: Types.ObjectId;
 
   @ApiProperty()
-  createdAt?: Date;
+  createdAt: Date;
 }
 
 export const ForgotPasswordSchema = SchemaFactory.createForClass(ForgotPassword).index({ createdAt: 1 });

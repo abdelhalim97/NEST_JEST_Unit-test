@@ -1,8 +1,9 @@
 import { EnvironmentService } from 'src/common/services/environment.service';
-import { CanActivate, ExecutionContext, HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
+import { CanActivate, ExecutionContext, HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { TokenPayloadResponse } from 'src/common/responses/token-payload.response';
+import { GetUserAuthInfoRequestI } from 'src/common/interfaces/get-user-auth-info-request.interface';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -12,7 +13,7 @@ export class AuthGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest();
+    const request: GetUserAuthInfoRequestI = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
 
     if (!token) throw new HttpException('Unauthorized!', HttpStatus.UNAUTHORIZED);
@@ -22,7 +23,7 @@ export class AuthGuard implements CanActivate {
         secret: this.environmentService.jasonWebTokenConfig.JWTSecretKey,
       });
 
-      request['user'] = payload;
+      request.user = payload;
     } catch {
       throw new HttpException('Unauthorized!', HttpStatus.UNAUTHORIZED);
     }
@@ -30,7 +31,12 @@ export class AuthGuard implements CanActivate {
   }
 
   private extractTokenFromHeader(request: Request): string | undefined {
-    const [type, token] = request.headers.authorization?.split(' ') ?? [];
+    const authorization = request.headers.authorization;
+
+    if (!authorization) throw new HttpException('Unauthorized!', HttpStatus.UNAUTHORIZED);
+
+    const [type, token] = authorization.split(' ');
+
     return type === 'Bearer' ? token : undefined;
   }
 }

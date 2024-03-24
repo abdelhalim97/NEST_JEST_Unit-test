@@ -9,6 +9,10 @@ module.exports = {
   extends: [
     'plugin:@typescript-eslint/recommended',
     'plugin:prettier/recommended',
+
+    //beneath this custom addedd rules
+    'plugin:@typescript-eslint/strict-type-checked',
+    'plugin:@typescript-eslint/stylistic-type-checked',
   ],
   root: true,
   env: {
@@ -21,5 +25,10 @@ module.exports = {
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
+
+    //beneath this custom addedd rules
+    "@typescript-eslint/no-floating-promises": 'warn',
+    'no-empty-function': ["error", { "allow": ["constructors"] }],
+    // "@typescript-eslint/no-floating-promises": "warn"
   },
 };

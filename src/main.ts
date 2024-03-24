@@ -17,6 +17,6 @@ async function bootstrap() {
   initSwaggerConfig(app);
 
   initGlobalConfig(app);
-  await app.listen(process.env.PORT);
+  await app.listen(process.env.PORT ?? 80);
 }
 bootstrap();
