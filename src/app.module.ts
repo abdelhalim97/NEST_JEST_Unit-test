@@ -17,7 +17,7 @@ import { ForgotPasswordsModule } from './modules/forgot-passwords/forgot-passwor
     MongooseModule.forRootAsync({
       imports: [CommonModule],
       inject: [EnvironmentService],
-      useFactory: async (environmentService: EnvironmentService) => {
+      useFactory: (environmentService: EnvironmentService) => {
         return {
           uri: environmentService.dataBaseConfig.dataBaseURL,
         };

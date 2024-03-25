@@ -1,8 +1,9 @@
+import { INestApplication } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { CommonModule } from 'src/common/common.module';
 import { EnvironmentService } from 'src/common/services/environment.service';
 
-export function initSwaggerConfig(app) {
+export function initSwaggerConfig(app: INestApplication) {
   const environmentService = app.select(CommonModule).get(EnvironmentService);
 
   app.setGlobalPrefix('api-docs/v1');
@@ -21,6 +22,5 @@ export function initSwaggerConfig(app) {
     )
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  if (!environmentService.isProduction)
-    SwaggerModule.setup('api-docs', app, document);
+  if (!environmentService.isProduction) SwaggerModule.setup('api-docs', app, document);
 }
