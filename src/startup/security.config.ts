@@ -1,6 +1,7 @@
+import { INestApplication } from '@nestjs/common';
 import helmet from 'helmet';
 
-export function initSecurityConfig(app): void {
+export function initSecurityConfig(app: INestApplication): void {
   app.use(helmet());
   // Set content security policy (CSP)
   app.use(

@@ -17,7 +17,7 @@ import { ForgotPasswordsModule } from 'src/modules/forgot-passwords/forgot-passw
       global: true,
       imports: [CommonModule],
       inject: [EnvironmentService],
-      useFactory: async (environmentService: EnvironmentService) => {
+      useFactory: (environmentService: EnvironmentService) => {
         return { secret: environmentService.jasonWebTokenConfig.JWTSecretKey };
       },
     }),
