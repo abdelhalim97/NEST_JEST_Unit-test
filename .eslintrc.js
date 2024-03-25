@@ -27,8 +27,8 @@ module.exports = {
     '@typescript-eslint/no-explicit-any': 'off',
 
     //beneath this custom addedd rules
-    "@typescript-eslint/no-floating-promises": 'warn',
-    'no-empty-function': ["error", { "allow": ["constructors"] }],
-    // "@typescript-eslint/no-floating-promises": "warn"
+    '@typescript-eslint/no-floating-promises': 'off',
+    '@typescript-eslint/no-empty-function': ["error", { "allow": ["constructors"] }],
+    '@typescript-eslint/no-extraneous-class': ["error", { "allowEmpty": true }],
   },
 };
