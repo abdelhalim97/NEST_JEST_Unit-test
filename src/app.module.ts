@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { AppService } from './app.service';
 import { CommonModule } from './common/common.module';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -26,5 +27,7 @@ import { ForgotPasswordsModule } from './modules/forgot-passwords/forgot-passwor
     UsersModule,
     ForgotPasswordsModule,
   ],
+  controllers: [],
+  providers: [AppService],
 })
 export class AppModule {}
