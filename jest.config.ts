@@ -6,7 +6,7 @@ module.exports = {
   transform: {
     '^.+\\.(t|j)s$': 'ts-jest',
   },
-  collectCoverageFrom: ['**/*.(t|j)s'],
+  collectCoverageFrom: ['**/*.service.ts'],
   coverageDirectory: '../coverage',
   preset: '@shelf/jest-mongodb',
   watchPathIgnorePatterns: ['globalConfig'],
