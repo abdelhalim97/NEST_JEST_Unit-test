@@ -6,7 +6,7 @@ import { ForgotPasswordDto } from 'src/modules/auth/dto/forgot-password.dto';
 import { LoginDto } from 'src/modules/auth/dto/login.dto';
 import { RegisterUserDto } from 'src/modules/auth/dto/register-user.dto';
 import { UpdatePasswordDto } from 'src/modules/auth/dto/update-password.dto';
-import { User } from 'src/modules/users/user.schema';
+import { JwtUserResponse } from 'src/modules/auth/reponse/jwt-user.response';
 
 @Controller('auth')
 @ApiTags('Authentication')
@@ -14,20 +14,20 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('register')
-  @ApiCreatedResponse({ type: User })
-  async register(@Body() registerUserDto: RegisterUserDto): Promise<User> {
+  @ApiCreatedResponse({ type: JwtUserResponse })
+  async register(@Body() registerUserDto: RegisterUserDto): Promise<JwtUserResponse> {
     return this.authService.register(registerUserDto);
   }
 
   @Post('login')
-  @ApiCreatedResponse({ type: User })
-  async login(@Body() loginDto: LoginDto): Promise<{ jwt: string }> {
+  @ApiCreatedResponse({ type: JwtUserResponse })
+  async login(@Body() loginDto: LoginDto): Promise<JwtUserResponse> {
     return this.authService.login(loginDto);
   }
 
   @Post('forgot-password')
-  @ApiCreatedResponse({ type: User })
-  async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto): Promise<any> {
+  @ApiCreatedResponse({ type: SuccessResponse })
+  async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto): Promise<SuccessResponse> {
     return this.authService.forgotPassword(forgotPasswordDto);
   }
 
