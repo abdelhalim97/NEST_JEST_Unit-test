@@ -6,7 +6,7 @@ import { EnvironmentService } from 'src/common/services/environment.service';
 export function initSwaggerConfig(app: INestApplication) {
   const environmentService = app.select(CommonModule).get(EnvironmentService);
 
-  app.setGlobalPrefix('api-docs/v1');
+  app.setGlobalPrefix('/v1');
   const config = new DocumentBuilder()
     .setTitle('Kataa API')
     .setDescription('Kataa API description')
