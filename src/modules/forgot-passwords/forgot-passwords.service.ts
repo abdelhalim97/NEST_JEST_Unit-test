@@ -37,7 +37,7 @@ export class ForgotPasswordsService {
   }
 
   async isForgotPasswordByUlidExists(ulid: string): Promise<ForgotPassword> {
-    const forgotPassword = await this.forgotPasswordModel.findOne({ ulid }).exec();
+    const forgotPassword = await this.forgotPasswordModel.findOne({ ulid }).lean();
 
     if (!forgotPassword) throw new HttpException('Rest password request either not found or used!', HttpStatus.NOT_FOUND);
 

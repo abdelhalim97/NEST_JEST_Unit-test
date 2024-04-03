@@ -25,7 +25,7 @@ export class User {
   @ApiProperty()
   phone: string;
 
-  @Prop()
+  @Prop({ default: null })
   @ApiProperty()
   profileImage: string;
 

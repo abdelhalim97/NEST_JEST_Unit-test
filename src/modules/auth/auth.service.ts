@@ -1,7 +1,6 @@
 import { JwtService } from '@nestjs/jwt';
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { UsersService } from 'src/modules/users/users.service';
-import * as bcrypt from 'bcrypt';
 import * as nodemailer from 'nodemailer';
 import { RegisterUserDto } from 'src/modules/auth/dto/register-user.dto';
 import { EnvironmentService } from 'src/common/services/environment.service';
@@ -14,6 +13,7 @@ import { ForgotPasswordsService } from 'src/modules/forgot-passwords/forgot-pass
 import { UpdatePasswordDto } from 'src/modules/auth/dto/update-password.dto';
 import { ForgotPasswordDto } from 'src/modules/auth/dto/forgot-password.dto';
 import { CommonService } from 'src/common/services/common.service';
+import { JwtUserResponse } from 'src/modules/auth/reponse/jwt-user.response';
 
 @Injectable()
 export class AuthService {
@@ -26,7 +26,7 @@ export class AuthService {
     @InjectModel(User.name) private userModel: Model<User>,
   ) {}
 
-  private JwtSecret = this.environmentService.jasonWebTokenConfig.JWTSecretKey;
+  private jwtSecret = this.environmentService.jasonWebTokenConfig.jWTSecretKey;
   private smtpEmail = this.environmentService.smtp.smtpUser;
   private frontUrl = this.environmentService.frontInformation.frontUrl;
 
@@ -40,34 +40,38 @@ export class AuthService {
     },
   });
 
-  async register(registerUserDto: RegisterUserDto): Promise<User> {
-    const { email, password, name } = registerUserDto;
+  async register(registerUserDto: RegisterUserDto): Promise<JwtUserResponse> {
+    const { email, password } = registerUserDto;
     const hashedPassword = await this.commonService.hash(password);
 
     await this.usersService.isEmailNotExists(email);
 
-    return await this.userModel.create({
-      email,
+    const userCreated = await this.userModel.create({
+      ...registerUserDto,
       password: hashedPassword,
-      name,
+      confirmPassword: undefined,
     });
+    const formatedUser = userCreated.toObject();
+
+    const token = await this.generateBearerToken(userCreated._id);
+
+    return { ...formatedUser, jwt: token };
   }
 
-  async login(loginDto: LoginDto): Promise<{ jwt: string }> {
+  async login(loginDto: LoginDto): Promise<JwtUserResponse> {
     const { email, password } = loginDto;
+
     const fetcheduser = await this.usersService.fetchUserByEmail(email);
 
-    const hashedPassword = await bcrypt.compare(password, fetcheduser.password);
-
-    if (!hashedPassword) throw new HttpException('Wrong credentials!', HttpStatus.UNAUTHORIZED);
+    await this.commonService.isPasswordCorrect(password, fetcheduser.password);
 
     const jwt = await this.generateBearerToken(fetcheduser._id);
-    return { jwt };
+    return { ...fetcheduser, jwt };
   }
 
   async forgotPassword(forgotPasswordDto: ForgotPasswordDto): Promise<SuccessResponse> {
     const { email } = forgotPasswordDto;
-    const user = await this.userModel.findOne({ email }).exec(); //We should not indecate to the user that email exists or not for security
+    const user = await this.userModel.findOne({ email }).lean(); //We should not indecate to the user that email exists or not for security
 
     if (user) {
       const createdForgotPassword = await this.forgotPasswordsService.createForgotPassword(user._id);
@@ -95,8 +99,10 @@ export class AuthService {
 
   async generateBearerToken(userId: Types.ObjectId): Promise<string> {
     const payload = { id: userId };
+
     return await this.jwtService.signAsync(payload, {
-      secret: this.JwtSecret,
+      secret: this.jwtSecret,
+      expiresIn: '24h',
     });
   }
 }
