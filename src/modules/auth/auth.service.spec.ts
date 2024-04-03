@@ -1,26 +1,35 @@
-import { MongoClient, Db } from 'mongodb';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
-import { RegisterUserDto } from 'src/modules/auth/dto/register-user.dto';
 import { UsersService } from 'src/modules/users/users.service';
 import { ConfigService } from '@nestjs/config';
 import { ForgotPasswordsService } from 'src/modules/forgot-passwords/forgot-passwords.service';
-import { EnvironmentService } from 'src/common/services/environment.service';
 import { CommonService } from 'src/common/services/common.service';
-import { JwtService } from '@nestjs/jwt';
+import { JwtModule } from '@nestjs/jwt';
 import { ForgotPassword } from 'src/modules/forgot-passwords/forgot-password.schema';
 import { ForgotPasswordsModule } from 'src/modules/forgot-passwords/forgot-passwords.module';
 import { getModelToken } from '@nestjs/mongoose';
-import { User } from 'src/modules/users/user.schema';
+import { User, UserSchema } from 'src/modules/users/user.schema';
+import { MongoMemoryServer } from 'mongodb-memory-server';
+import { Connection, Model, connect } from 'mongoose';
+import { HttpException } from '@nestjs/common';
+import { registerUserDtoStub } from 'src/modules/auth/stubs/register-user.stub';
+import { EnvironmentService } from 'src/common/services/environment.service';
+import { jwtConfig } from 'src/common/services/stubs/jwt-config.stub';
 
 describe('AuthService', () => {
-  let db: Db;
-  let connection: MongoClient;
-  let service: AuthService;
+  let mongoMemory: MongoMemoryServer;
+  let connection: Connection;
+  let authService: AuthService;
+  let usersService: UsersService;
+  let UsersModule: Model<User>;
 
   beforeAll(async () => {
-    connection = await MongoClient.connect(String(global.__MONGO_URI__));
-    db = connection.db();
+    mongoMemory = await MongoMemoryServer.create();
+
+    const uri = mongoMemory.getUri();
+
+    connection = (await connect(uri)).connection;
+    UsersModule = connection.model(User.name, UserSchema);
   });
 
   beforeEach(async () => {
@@ -28,35 +37,43 @@ describe('AuthService', () => {
       providers: [
         AuthService,
         UsersService,
-        { provide: getModelToken(User.name), useValue: ForgotPasswordsModule },
+        { provide: getModelToken(User.name), useValue: UsersModule },
         ForgotPasswordsService,
         { provide: getModelToken(ForgotPassword.name), useValue: ForgotPasswordsModule },
         EnvironmentService,
         CommonService,
-        JwtService,
         ConfigService,
       ],
+      imports: [JwtModule.register(jwtConfig)],
     }).compile();
 
-    service = module.get<AuthService>(AuthService);
+    authService = module.get<AuthService>(AuthService);
+    usersService = module.get<UsersService>(UsersService);
+  });
+
+  afterEach(async () => {
+    const collections = connection.collections;
+    for (const key in collections) {
+      const collection = collections[key];
+      await collection.deleteMany({});
+    }
   });
 
   afterAll(async () => {
+    await connection.dropDatabase();
     await connection.close();
+    await mongoMemory.stop();
   });
 
   it('register user test', async () => {
-    const registerUserDto: RegisterUserDto = {
-      name: 'John',
-      email: 'John@email.com',
-      password: '123456',
-      confirmPassword: '123456',
-      phone: '235689',
-    };
-    const users = db.collection('users');
+    const createdUser = await authService.register(registerUserDtoStub);
 
-    await users.insertOne(registerUserDto);
+    expect(createdUser.email).toBe(createdUser.email);
+  });
 
-    expect(service).toBeDefined();
+  it('isEmailNotExists ', async () => {
+    await UsersModule.create(registerUserDtoStub);
+
+    await expect(usersService.isEmailNotExists(registerUserDtoStub.email)).rejects.toThrow(HttpException);
   });
 });
