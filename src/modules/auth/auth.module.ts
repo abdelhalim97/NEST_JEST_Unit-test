@@ -20,7 +20,7 @@ import { ForgotPasswordsModule } from 'src/modules/forgot-passwords/forgot-passw
       imports: [CommonModule],
       inject: [EnvironmentService],
       useFactory: (environmentService: EnvironmentService) => {
-        return { secret: environmentService.jasonWebTokenConfig.JWTSecretKey };
+        return { secret: environmentService.jasonWebTokenConfig.jWTSecretKey, expiresIn: '24h' };
       },
     }),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),

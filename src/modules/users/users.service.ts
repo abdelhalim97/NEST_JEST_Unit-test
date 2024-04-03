@@ -33,7 +33,7 @@ export class UsersService {
   }
 
   async fetchUserByEmail(email: string): Promise<User> {
-    const user = await this.userModel.findOne({ email }).exec();
+    const user = await this.userModel.findOne({ email }).lean();
 
     if (!user) throw new HttpException('Email not found!', HttpStatus.NOT_FOUND);
 
