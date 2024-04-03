@@ -26,7 +26,7 @@ export class AuthService {
     @InjectModel(User.name) private userModel: Model<User>,
   ) {}
 
-  private JwtSecret = this.environmentService.jasonWebTokenConfig.JWTSecretKey;
+  private jwtSecret = this.environmentService.jasonWebTokenConfig.jWTSecretKey;
   private smtpEmail = this.environmentService.smtp.smtpUser;
   private frontUrl = this.environmentService.frontInformation.frontUrl;
 
@@ -45,14 +45,17 @@ export class AuthService {
     const hashedPassword = await this.commonService.hash(password);
 
     await this.usersService.isEmailNotExists(email);
+
     const userCreated = await this.userModel.create({
       ...registerUserDto,
       password: hashedPassword,
       confirmPassword: undefined,
     });
+    const formatedUser = userCreated.toObject();
 
     const token = await this.generateBearerToken(userCreated._id);
-    return { ...userCreated, jwt: token };
+
+    return { ...formatedUser, jwt: token };
   }
 
   async login(loginDto: LoginDto): Promise<JwtUserResponse> {
@@ -68,7 +71,7 @@ export class AuthService {
 
   async forgotPassword(forgotPasswordDto: ForgotPasswordDto): Promise<SuccessResponse> {
     const { email } = forgotPasswordDto;
-    const user = await this.userModel.findOne({ email }).exec(); //We should not indecate to the user that email exists or not for security
+    const user = await this.userModel.findOne({ email }).lean(); //We should not indecate to the user that email exists or not for security
 
     if (user) {
       const createdForgotPassword = await this.forgotPasswordsService.createForgotPassword(user._id);
@@ -96,8 +99,10 @@ export class AuthService {
 
   async generateBearerToken(userId: Types.ObjectId): Promise<string> {
     const payload = { id: userId };
+
     return await this.jwtService.signAsync(payload, {
-      secret: this.JwtSecret,
+      secret: this.jwtSecret,
+      expiresIn: '24h',
     });
   }
 }
