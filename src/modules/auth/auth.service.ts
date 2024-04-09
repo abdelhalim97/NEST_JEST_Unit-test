@@ -12,8 +12,8 @@ import { SuccessResponse } from 'src/common/responses/success.response';
 import { ForgotPasswordsService } from 'src/modules/forgot-passwords/forgot-passwords.service';
 import { UpdatePasswordDto } from 'src/modules/auth/dto/update-password.dto';
 import { ForgotPasswordDto } from 'src/modules/auth/dto/forgot-password.dto';
-import { CommonService } from 'src/common/services/common.service';
 import { JwtUserResponse } from 'src/modules/auth/reponse/jwt-user.response';
+import { BcryptService } from 'src/common/services/bcrypt.service';
 
 @Injectable()
 export class AuthService {
@@ -21,7 +21,7 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly forgotPasswordsService: ForgotPasswordsService,
     private readonly environmentService: EnvironmentService,
-    private commonService: CommonService,
+    private bcryptService: BcryptService,
     private jwtService: JwtService,
     @InjectModel(User.name) private userModel: Model<User>,
   ) {}
@@ -34,7 +34,7 @@ export class AuthService {
 
   async register(registerUserDto: RegisterUserDto): Promise<JwtUserResponse> {
     const { email, password } = registerUserDto;
-    const hashedPassword = await this.commonService.hash(password);
+    const hashedPassword = await this.bcryptService.hash(password);
 
     await this.usersService.isEmailNotExists(email);
 
@@ -55,7 +55,7 @@ export class AuthService {
 
     const fetcheduser = await this.usersService.fetchUserByEmail(email);
 
-    await this.commonService.isPasswordCorrect(password, fetcheduser.password);
+    await this.bcryptService.isPasswordCorrect(password, fetcheduser.password);
 
     const jwt = await this.generateBearerToken(fetcheduser._id);
     return { ...fetcheduser, jwt };

@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { SuccessResponse } from 'src/common/responses/success.response';
-import { CommonService } from 'src/common/services/common.service';
+import { BcryptService } from 'src/common/services/bcrypt.service';
 import { UpdatePasswordDto } from 'src/modules/auth/dto/update-password.dto';
 import { User } from 'src/modules/users/user.schema';
 
@@ -10,14 +10,14 @@ import { User } from 'src/modules/users/user.schema';
 export class UsersService {
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
-    private commonService: CommonService,
+    private bcryptService: BcryptService,
   ) {}
 
   async updatePassword(updatePasswordDto: UpdatePasswordDto, id: Types.ObjectId): Promise<SuccessResponse> {
     const { password } = updatePasswordDto;
     await this.isUserByIdExists(id);
 
-    const hashedPassword = await this.commonService.hash(password);
+    const hashedPassword = await this.bcryptService.hash(password);
 
     await this.userModel.updateOne({ _id: id }, { password: hashedPassword });
 
