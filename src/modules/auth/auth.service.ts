@@ -30,15 +30,7 @@ export class AuthService {
   private smtpEmail = this.environmentService.smtp.smtpUser;
   private frontUrl = this.environmentService.frontInformation.frontUrl;
 
-  private transporter = nodemailer.createTransport({
-    host: this.environmentService.smtp.smtpHost,
-    port: this.environmentService.smtp.smtpPort,
-    secure: true,
-    auth: {
-      user: this.smtpEmail,
-      pass: this.environmentService.smtp.smtpPassword,
-    },
-  });
+  private transporter = nodemailer.createTransport(this.environmentService.transporter);
 
   async register(registerUserDto: RegisterUserDto): Promise<JwtUserResponse> {
     const { email, password } = registerUserDto;
