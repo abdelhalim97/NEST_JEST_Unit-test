@@ -13,16 +13,16 @@ import { ForgotPasswordsModule } from 'src/modules/forgot-passwords/forgot-passw
   providers: [AuthService],
   controllers: [AuthController],
   imports: [
+    UsersModule,
+    ForgotPasswordsModule,
     JwtModule.registerAsync({
       global: true,
       imports: [CommonModule],
       inject: [EnvironmentService],
       useFactory: (environmentService: EnvironmentService) => {
-        return { secret: environmentService.jasonWebTokenConfig.JWTSecretKey };
+        return { secret: environmentService.jasonWebTokenConfig.jWTSecretKey, expiresIn: '24h' };
       },
     }),
-    UsersModule,
-    ForgotPasswordsModule,
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
   ],
 })

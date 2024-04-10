@@ -1,17 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { EnvironmentService } from 'src/common/services/environment.service';
-import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class CommonService {
-  constructor(private readonly environmentService: EnvironmentService) {}
-
-  private saltOrRounds = this.environmentService.jasonWebTokenConfig.saltRounds;
-
-  async hash(hashedVariable: string): Promise<string> {
-    return await bcrypt.hash(hashedVariable, this.saltOrRounds);
-  }
-
   adjustDate(): Date {
     const givenDate = new Date();
 
