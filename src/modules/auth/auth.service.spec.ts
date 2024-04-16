@@ -85,7 +85,6 @@ describe('AuthService', () => {
   it('forgot pass', async () => {
     await authService.register(registerUserDtoStub);
 
-    // jest.spyOn(authService.transporter, 'sendPasswordResetEmail').mockImplementation(() => return true);
     const forgotPasswordResponse = await authService.forgotPassword(registerUserDtoStub);
 
     expect(forgotPasswordResponse.success).toBeTruthy();
