@@ -2,13 +2,6 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class CommonService {
-  adjustDate(): Date {
-    const givenDate = new Date();
-
-    givenDate.setTime(givenDate.getTime() - new Date().getTimezoneOffset() * 60 * 1000);
-    return givenDate;
-  }
-
   remainingTime(date: Date): number {
     const currentTime = new Date();
     const targetTime = new Date(date);

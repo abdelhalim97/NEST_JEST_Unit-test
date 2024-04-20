@@ -9,6 +9,8 @@ import { HttpException } from '@nestjs/common';
 import { BcryptService } from 'src/common/services/bcrypt.service';
 import { EnvironmentService } from 'src/common/services/environment.service';
 import { ConfigService } from '@nestjs/config';
+import { updatePasswordDtoStub } from 'src/modules/auth/dto/stubs/update-password.stub';
+import { ObjectId } from 'mongodb';
 
 describe('UsersService', () => {
   let mongoMemory: MongoMemoryServer;
@@ -41,7 +43,43 @@ describe('UsersService', () => {
     }
   });
 
-  it('isEmailNotExists ', async () => {
+  it('update password', async () => {
+    const createdUser = await UsersModule.create(registerUserDtoStub);
+
+    expect(await usersService.updatePassword(updatePasswordDtoStub, createdUser._id)).toBeTruthy();
+  });
+
+  it('fetch User By Id => truthy scenario', async () => {
+    const createdUser = await UsersModule.create(registerUserDtoStub);
+
+    const fetchedUser = await usersService.fetchUserById(createdUser._id);
+
+    expect(fetchedUser.email).toBe(createdUser.email);
+  });
+
+  it('fetch User By Id => false scenario', async () => {
+    await expect(usersService.fetchUserById(new ObjectId())).rejects.toThrow(HttpException);
+  });
+
+  it('fetch User By Email => truthy scenario', async () => {
+    const createdUser = await UsersModule.create(registerUserDtoStub);
+
+    const fetchedUser = await usersService.fetchUserByEmail(createdUser.email);
+
+    expect(fetchedUser.email).toBe(createdUser.email);
+  });
+
+  it('fetch User By Email => false scenario', async () => {
+    await expect(usersService.fetchUserByEmail('random@mail.com')).rejects.toThrow(HttpException);
+  });
+
+  it('is Email Not Exists => truthy', async () => {
+    await UsersModule.create(registerUserDtoStub);
+
+    expect(usersService.isEmailNotExists(registerUserDtoStub.email)).toBeTruthy();
+  });
+
+  it('is Email Not Exists => falsy', async () => {
     await UsersModule.create(registerUserDtoStub);
 
     await expect(usersService.isEmailNotExists(registerUserDtoStub.email)).rejects.toThrow(HttpException);

@@ -85,7 +85,7 @@ export class AuthService {
 
     await this.usersService.updatePassword(updatePasswordDto, forgotPassword.userId);
 
-    await this.forgotPasswordsService.deleteForgotPasswordByUlid(forgotPassword.ulid);
+    this.forgotPasswordsService.deleteForgotPasswordByUlid(forgotPassword.ulid);
     return { success: true };
   }
 
