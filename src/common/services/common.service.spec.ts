@@ -18,6 +18,13 @@ describe('CommonService', () => {
     expect(commonService.remainingTime(new Date())).toEqual(expect.any(Number));
   });
 
+  it('remaining Time =>targetTime>current time', () => {
+    const targetTime = new Date();
+    targetTime.setHours(targetTime.getHours() + 4);
+
+    expect(commonService.remainingTime(targetTime)).toEqual(expect.any(Number));
+  });
+
   it('milliseconds To Hours', () => {
     expect(commonService.millisecondsToHours(123)).toEqual(expect.any(Number));
   });
