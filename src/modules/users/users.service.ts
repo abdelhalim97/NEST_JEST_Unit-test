@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { SuccessResponse } from 'src/common/responses/success.response';
-import { CommonService } from 'src/common/services/common.service';
+import { BcryptService } from 'src/common/services/bcrypt.service';
 import { UpdatePasswordDto } from 'src/modules/auth/dto/update-password.dto';
 import { User } from 'src/modules/users/user.schema';
 
@@ -10,14 +10,14 @@ import { User } from 'src/modules/users/user.schema';
 export class UsersService {
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
-    private commonService: CommonService,
+    private bcryptService: BcryptService,
   ) {}
 
   async updatePassword(updatePasswordDto: UpdatePasswordDto, id: Types.ObjectId): Promise<SuccessResponse> {
     const { password } = updatePasswordDto;
-    await this.isUserByIdExists(id);
+    await this.fetchUserById(id);
 
-    const hashedPassword = await this.commonService.hash(password);
+    const hashedPassword = await this.bcryptService.hash(password);
 
     await this.userModel.updateOne({ _id: id }, { password: hashedPassword });
 
@@ -27,7 +27,7 @@ export class UsersService {
   async fetchUserById(id: Types.ObjectId): Promise<User> {
     const user = await this.userModel.findOne({ _id: id });
 
-    if (!user) throw new HttpException('Email not found!', HttpStatus.NOT_FOUND);
+    if (!user) throw new HttpException('User not found!', HttpStatus.NOT_FOUND);
 
     return user;
   }
@@ -40,24 +40,10 @@ export class UsersService {
     return user;
   }
 
-  async isEmailExists(email: string): Promise<boolean> {
-    const userByEmail = await this.userModel.findOne({ email });
-
-    if (!userByEmail) throw new HttpException('Email not found!', HttpStatus.NOT_FOUND);
-    return true;
-  }
-
   async isEmailNotExists(email: string): Promise<boolean> {
     const userByEmail = await this.userModel.findOne({ email });
 
     if (userByEmail) throw new HttpException('Email exists!', HttpStatus.CONFLICT);
-    return true;
-  }
-
-  async isUserByIdExists(id: Types.ObjectId): Promise<boolean> {
-    const userByEmail = await this.userModel.findOne({ _id: id });
-
-    if (!userByEmail) throw new HttpException('User not found!', HttpStatus.NOT_FOUND);
     return true;
   }
 }

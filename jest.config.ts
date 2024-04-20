@@ -10,4 +10,5 @@ module.exports = {
   coverageDirectory: '../coverage',
   preset: '@shelf/jest-mongodb',
   watchPathIgnorePatterns: ['globalConfig'],
+  setupFilesAfterEnv: ['dotenv/config'], //This will make jest to load your .env for every test
 };

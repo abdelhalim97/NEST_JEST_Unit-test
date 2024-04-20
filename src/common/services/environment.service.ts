@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ServerEnvironmentEnum } from '../enums/server-environments.enum';
+import SMTPTransport from 'nodemailer/lib/smtp-transport';
 
 @Injectable()
 export class EnvironmentService {
@@ -43,6 +44,18 @@ export class EnvironmentService {
       smtpPort: this.configService.get<number>('SMTP_PORT'),
       smtpUser: this.configService.get<string>('SMTP_USER'),
       smtpPassword: this.configService.get<string>('SMTP_PASSWORD'),
+    };
+  }
+
+  get transporter(): SMTPTransport | SMTPTransport.Options | string {
+    return {
+      host: this.smtp.smtpHost,
+      port: this.smtp.smtpPort,
+      secure: true,
+      auth: {
+        user: this.smtp.smtpUser,
+        pass: this.smtp.smtpPassword,
+      },
     };
   }
 }
